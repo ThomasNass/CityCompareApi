@@ -1,26 +1,29 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CityCompareProxy.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using static YourNamespace.Controllers.HousePriceController;
+using Newtonsoft.Json.Linq;
+using static YourNamespace.Controllers.ScbController;
 
 
 namespace YourNamespace.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HousePriceController : ControllerBase
+    public class ScbController : ControllerBase
     {
         private readonly HttpClient _httpClient;
-        private readonly string baseUrl = "https://api.scb.se"; // API endpoint
+        private readonly string _baseUrl = "https://api.scb.se"; // API endpoint
 
-        public HousePriceController(IHttpClientFactory httpClientFactory)
+
+        public ScbController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
         }
 
-        [HttpPost("{city}")]
+        [HttpPost("houseprices/{city}")]
         public async Task<IActionResult> GetHousePrice(string city)
         {
             try
@@ -31,7 +34,6 @@ namespace YourNamespace.Controllers
 
                 //if (data == null)
                 //{
-                Console.WriteLine("API ANROP");
 
                 var requestBody = new
                 {
@@ -48,7 +50,7 @@ namespace YourNamespace.Controllers
                 var requestBodyJson = JsonConvert.SerializeObject(requestBody);
                 var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync(baseUrl+url, requestContent);
+                var response = await _httpClient.PostAsync(_baseUrl + url, requestContent);
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -65,32 +67,49 @@ namespace YourNamespace.Controllers
             }
         }
 
-        public class HousePriceResponse
+        [HttpPost("income/{city}")]
+        public async Task<IActionResult> GetIncomeData(string city)
         {
-            public List<Column> Columns { get; set; }
-            public List<DataItem> Data { get; set; }
-            public List<MetadataItem> Metadata { get; set; }
-        }
+            try
+            {
+                var incomeUrl = "/OV0104/v1/doris/sv/ssd/START/HE/HE0110/HE0110A/SamForvInk2";
+                //string cacheKey = $"income-{city.ToLower()}";
+                //var data = GetFromCache(cacheKey); // Uncomment this if you have caching logic
 
-        public class Column
-        {
-            public string Code { get; set; }
-            public string Text { get; set; }
-            public string Type { get; set; }
-        }
+                //if (data == null) // Uncomment this if you have caching logic
+                //{
 
-        public class DataItem
-        {
-            public List<string> Key { get; set; }
-            public List<string> Values { get; set; }
-        }
+                var requestBody = new
+                {
+                    query = new[]
+                    {
+                            new { code = "Region", selection = new { filter = "vs:RegionKommun07EjAggr", values = new[] { city } } },
+                            new { code = "Alder", selection = new { filter = "item", values = new[] { "20-64" } } },
+                            new { code = "Inkomstklass", selection = new { filter = "item", values = new[] { "TOT" } } },
+                            new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "HE0110K1", "HE0110K2" } } },
+                            new { code = "Tid", selection = new { filter = "item", values = new[] { "2020" } } }
+                        },
+                    response = new { format = "json" }
+                };
 
-        public class MetadataItem
-        {
-            public string Infofile { get; set; }
-            public DateTime Updated { get; set; }
-            public string Label { get; set; }
-            public string Source { get; set; }
+                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
+                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(_baseUrl + incomeUrl, requestContent);
+                response.EnsureSuccessStatusCode();
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var incomeData = JsonConvert.DeserializeObject<IncomeResponse>(responseContent);
+
+                // SaveToCache(cacheKey, incomeData); // Uncomment this if you have caching logic
+                return Ok(incomeData);
+                //}
+                //return Ok(data); // Uncomment this if you have caching logic
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         //private object GetFromCache(string cacheKey)
