@@ -1,6 +1,6 @@
 ﻿namespace CityCompareProxy.Models
 {
-    public class HousePriceResponse
+    public class ScbResponse
     {
         public List<Column> Columns { get; set; }
         public List<DataItem> Data { get; set; }
