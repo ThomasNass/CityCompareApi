@@ -2,62 +2,31 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CityCompareProxy.Models;
+using CityCompareProxy.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static YourNamespace.Controllers.ScbController;
 
 
-namespace YourNamespace.Controllers
+namespace CityCompareProxy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ScbController : ControllerBase
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://api.scb.se"; // API endpoint
+        private readonly IScbService _scbService;
 
-
-        public ScbController(IHttpClientFactory httpClientFactory)
+        public ScbController(IScbService scbService)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _scbService = scbService;
         }
 
-        [HttpPost("houseprices/{cityId}")]
+        [HttpGet("houseprices/{cityId}")]
         public async Task<IActionResult> GetHousePrice(string cityId)
         {
             try
             {
-                string url = "/OV0104/v1/doris/sv/ssd/START/BO/BO0501/BO0501B/FastprisSHRegionAr";
-                //var cacheKey = $"houseprice-{city.ToLower()}";
-                //var data = GetFromCache(cacheKey);
-
-                //if (data == null)
-                //{
-
-                var requestBody = new
-                {
-                    query = new[]
-                    {
-                            new { code = "Region", selection = new { filter = "vs:RegionKommun07EjAggr", values = new[] { cityId } } },
-                            new { code = "Fastighetstyp", selection = new { filter = "item", values = new[] { "220" } } },
-                            new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "BO0501C2" } } },
-                            new { code = "Tid", selection = new { filter = "item", values = new[] { "2022" } } }//Skippar jag tid här så får jag alla år. Då kan jag göra ett linjediagram istället
-                        },
-                    response = new { format = "json" }
-                };
-
-                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
-                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl + url, requestContent);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<ScbResponse>(responseContent);
-
-                //SaveToCache(cacheKey, data);
-                // }
+                ScbResponse? data = await _scbService.GetHousePrice(cityId);
 
                 return Ok(data);
             }
@@ -67,44 +36,16 @@ namespace YourNamespace.Controllers
             }
         }
 
-        [HttpPost("income/{cityId}")]
+
+
+        [HttpGet("income/{cityId}")]
         public async Task<IActionResult> GetIncomeData(string cityId)
         {
             try
             {
-                var incomeUrl = "/OV0104/v1/doris/sv/ssd/START/HE/HE0110/HE0110A/SamForvInk2";
-                //string cacheKey = $"income-{city.ToLower()}";
-                //var data = GetFromCache(cacheKey); // Uncomment this if you have caching logic
+                ScbResponse? data = await _scbService.GetIncomeData(cityId);
 
-                //if (data == null) // Uncomment this if you have caching logic
-                //{
-
-                var requestBody = new
-                {
-                    query = new[]
-                    {
-                            new { code = "Region", selection = new { filter = "vs:RegionKommun07EjAggr", values = new[] { cityId } } },
-                            new { code = "Alder", selection = new { filter = "item", values = new[] { "20-64" } } },
-                            new { code = "Inkomstklass", selection = new { filter = "item", values = new[] { "TOT" } } },
-                            new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "HE0110K1", "HE0110K2" } } },
-                            new { code = "Tid", selection = new { filter = "item", values = new[] { "2020" } } }
-                        },
-                    response = new { format = "json" }
-                };
-
-                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
-                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl + incomeUrl, requestContent);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var incomeData = JsonConvert.DeserializeObject<ScbResponse>(responseContent);
-
-                // SaveToCache(cacheKey, incomeData); // Uncomment this if you have caching logic
-                return Ok(incomeData);
-                //}
-                //return Ok(data); // Uncomment this if you have caching logic
+                return Ok(data);
             }
             catch (Exception ex)
             {
@@ -112,35 +53,14 @@ namespace YourNamespace.Controllers
             }
         }
 
-        [HttpPost("growth/{cityId}")]
+
+
+        [HttpGet("growth/{cityId}")]
         public async Task<IActionResult> GetGrowthData(string cityId)
         {
             try
             {
-                var growthUrl = "/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy";
-                string cacheKey = $"growth-{cityId.ToLower()}";
-                // Check cache here if needed
-
-                var requestBody = new
-                {
-                    query = new[]
-                    {
-                        new { code = "Region", selection = new { filter = "vs:RegionKommun07", values = new[] { cityId } } },
-                        new  { code = "ContentsCode", selection = new  { filter = "item", values = new[] { "BE0101N1" } } }
-                    },
-                    response = new { format = "json" }
-                };
-
-                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
-                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl + growthUrl, requestContent);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var growthResponse = JsonConvert.DeserializeObject<ScbResponse>(responseContent);
-
-                // Save data to cache if needed
+                ScbResponse? growthResponse = await _scbService.GetGrowthData(cityId);
 
                 return Ok(growthResponse);
             }
@@ -150,120 +70,47 @@ namespace YourNamespace.Controllers
             }
         }
 
-        [HttpPost("population/{cityId}")]
+
+
+        [HttpGet("population/{cityId}")]
         public async Task<IActionResult> GetPopulationData(string cityId)
         {
             try
             {
-                var populationUrl = "/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy";
-
-                var requestBody = new
-                {
-                    query = new[]
-                    {
-                    new { code = "Region", selection = new{ filter ="vs:RegionKommun07", values = new[] { cityId } } },
-                    new { code = "ContentsCode", selection = new{ filter = "item", values = new[] { "BE0101N1" } } },
-                    new { code = "Kon", selection = new{ filter = "item", values = new[] { "1","2" } } },
-                    new { code = "Tid", selection = new{ filter = "item", values = new[] { "2022" } } },
-
-            },
-                    Response = new { format = "json" }
-                };
-                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
-                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl + populationUrl, requestContent);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var electionResponse = JsonConvert.DeserializeObject<ScbResponse>(responseContent);
-
-                // Save data to cache if needed
+                ScbResponse? electionResponse = await _scbService.GetPopulationData(cityId);
 
                 return Ok(electionResponse);
             }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
-        [HttpPost("election/{cityId}")]
+
+        [HttpGet("election/{cityId}")]
         public async Task<IActionResult> GetElectionData(string cityId)
         {
             try
             {
-                var electionUrl = "/OV0104/v1/doris/sv/ssd/START/ME/ME0104/ME0104C/ME0104T3";
-
-                var requestBody = new
-                {
-                    query = new[]
-                    { new{ code = "Region", selection = new{ filter ="vs:RegionKommun07+BaraEjAggr", values = new[] { cityId } } },
-                    new {code = "ContentsCode", selection = new{ filter = "item", values = new[] { "ME0104B7" } } },
-                        new {code = "Partimm", selection = new{ filter = "item", values = new[] { "V","MP","S","C","FP","KD","M","SD","ÖVRIGA" } } },
-                        new {code = "Tid", selection = new{ filter = "item", values = new[] { "2022" } } },
-
-                    },
-                    Response = new { format = "json" }
-                };
-                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
-                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl + electionUrl, requestContent);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var electionResponse = JsonConvert.DeserializeObject<ScbResponse>(responseContent);
-
-                // Save data to cache if needed
+                ScbResponse? electionResponse = await _scbService.GetElectionData(cityId);
 
                 return Ok(electionResponse);
             }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
-        [HttpPost("election-municipality/{cityId}")]
+
+
+        [HttpGet("election-municipality/{cityId}")]
         public async Task<IActionResult> GetMunicipalityElectionData(string cityId)
         {
             try
             {
-                var electionUrl = "/OV0104/v1/doris/sv/ssd/START/ME/ME0104/ME0104A/ME0104T1";
-
-                var requestBody = new
-                {
-                    query = new[]
-                    { new{ code = "Region", selection = new{ filter ="vs:RegionKommun07+BaraEjAggr", values = new[] { cityId } } },
-                    new {code = "ContentsCode", selection = new{ filter = "item", values = new[] { "ME0104B2" } } },
-                        new {code = "Partimm", selection = new{ filter = "item", values = new[] { "V","MP","S","C","FP","KD","M","SD","ÖVRIGA" } } },
-                        new {code = "Tid", selection = new{ filter = "item", values = new[] { "2022" } } },
-
-                    },
-                    Response = new { format = "json" }
-                };
-                var requestBodyJson = JsonConvert.SerializeObject(requestBody);
-                var requestContent = new StringContent(requestBodyJson, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(_baseUrl + electionUrl, requestContent);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var electionResponse = JsonConvert.DeserializeObject<ScbResponse>(responseContent);
-
-                // Save data to cache if needed
+                ScbResponse? electionResponse = await _scbService.GetMunicipalityElectionData(cityId);
 
                 return Ok(electionResponse);
             }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
+
     }
-
-    //private object GetFromCache(string cacheKey)
-    //{
-    //    // Implement your cache retrieval logic here
-    //    throw new NotImplementedException();
-    //}
-
-    //private void SaveToCache(string cacheKey, object data)
-    //{
-    //    // Implement your cache saving logic here
-    //    throw new NotImplementedException();
-    //}
 }
 
