@@ -1,4 +1,5 @@
 ﻿using CityCompareProxy.Models;
+using CityCompareProxy.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -10,10 +11,12 @@ namespace CityCompareProxy.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl = "https://api.scb.se"; // API endpoint
+        private readonly IScbRepository _scbRepository;
 
-        public ScbService(IHttpClientFactory httpClientFactory)
+        public ScbService(IHttpClientFactory httpClientFactory, IScbRepository scbRepository)
         {
             _httpClient = httpClientFactory.CreateClient();
+            _scbRepository = scbRepository;
         }
         public async Task<ScbResponse?> GetHousePrice(string cityId)
         {
@@ -31,7 +34,9 @@ namespace CityCompareProxy.Services
                 response = new { format = "json" }
             };
 
-            return await PostScb(url, requestBody);
+            var result = await PostScb(url, requestBody);
+            await _scbRepository.StoreResponse(result);
+            return result;
         }
 
 
@@ -53,7 +58,9 @@ namespace CityCompareProxy.Services
                 response = new { format = "json" }
             };
 
-            return await PostScb(url, requestBody);
+            var result = await PostScb(url, requestBody);
+            await _scbRepository.StoreResponse(result);
+            return result;
 
         }
 
@@ -71,7 +78,9 @@ namespace CityCompareProxy.Services
                 response = new { format = "json" }
             };
 
-            return await PostScb(url, requestBody);
+            var result = await PostScb(url, requestBody);
+            await _scbRepository.StoreResponse(result);
+            return result;
         }
 
         public async Task<ScbResponse?> GetPopulationData(string cityId)
@@ -89,7 +98,9 @@ namespace CityCompareProxy.Services
                 },
                 response = new { format = "json" }
             };
-            return await PostScb(url, requestBody);
+            var result = await PostScb(url, requestBody);
+            await _scbRepository.StoreResponse(result);
+            return result;
         }
 
         public async Task<ScbResponse?> GetElectionData(string cityId)
@@ -106,7 +117,9 @@ namespace CityCompareProxy.Services
                 },
                 response = new { format = "json" }
             };
-            return await PostScb(url, requestBody);
+            var result = await PostScb(url, requestBody);
+            await _scbRepository.StoreResponse(result);
+            return result;
         }
 
         public async Task<ScbResponse?> GetMunicipalityElectionData(string cityId)
@@ -124,7 +137,9 @@ namespace CityCompareProxy.Services
                 response = new { format = "json" }
             };
 
-            return await PostScb(url, requestBody);
+            var result = await PostScb(url, requestBody);
+            await _scbRepository.StoreResponse(result);
+            return result;
         }
 
         private async Task<ScbResponse?> PostScb(string url, object requestBody)
