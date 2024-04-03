@@ -1,5 +1,6 @@
 ﻿namespace CityCompareProxy.Models
 {
+    
     public class ScbResponse
     {
         public List<Column>? Columns { get; set; }

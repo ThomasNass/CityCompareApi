@@ -1,4 +1,5 @@
-﻿using CityCompareProxy.Models;
+﻿using CityCompareProxy.Helper;
+using CityCompareProxy.Models;
 using CityCompareProxy.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,7 +19,12 @@ namespace CityCompareProxy.Services
             _httpClient = httpClientFactory.CreateClient();
             _scbRepository = scbRepository;
         }
-        public async Task<ScbResponse?> GetHousePrice(string cityId)
+
+        public async Task<City> GetCityAsync(string cityId)
+        {
+            return await _scbRepository.GetCityAsync(cityId);
+        }
+        public async Task<City?> GetHousePrice(string cityId)
         {
             string url = "/OV0104/v1/doris/sv/ssd/START/BO/BO0501/BO0501B/FastprisSHRegionAr";
 
@@ -28,15 +34,33 @@ namespace CityCompareProxy.Services
                 {
                        new { code = "Region", selection = new { filter = "vs:RegionKommun07EjAggr", values = new[] { cityId } } },
                        new { code = "Fastighetstyp", selection = new { filter = "item", values = new[] { "220" } } },
-                       new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "BO0501C2" } } },
-                       new { code = "Tid", selection = new { filter = "item", values = new[] { "2022" } } }//Skippar jag tid här så får jag alla år. Då kan jag göra ett linjediagram istället
+                       new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "BO0501C2" } } }//,
+                       //new { code = "Tid", selection = new { filter = "item", values = new[] { "2022" } } }//Skippar jag tid här så får jag alla år. Då kan jag göra ett linjediagram istället
                 },
                 response = new { format = "json" }
             };
 
             var result = await PostScb(url, requestBody);
-            await _scbRepository.StoreResponse(result);
-            return result;
+           var city = await _scbRepository.GetCityAsync(cityId);
+            if(city != null)
+            {
+                var lastWeek = DateTime.Now.AddDays(-7);
+                if (city.HousePrices.LastUpdateDate !> lastWeek)
+                {
+                    return city;
+                }
+            }
+            else
+            {
+                city = new City();
+                city.Id = cityId;  
+            }
+            var housePrices = Mapper.MapScbResponseToHousePrices(result);
+            housePrices.CityId = cityId;
+            city.HousePrices = housePrices;
+            await _scbRepository.StoreCity(city);
+            return city;
+
         }
 
 
@@ -52,14 +76,14 @@ namespace CityCompareProxy.Services
                     new { code = "Region", selection = new { filter = "vs:RegionKommun07EjAggr", values = new[] { cityId } } },
                     new { code = "Alder", selection = new { filter = "item", values = new[] { "20-64" } } },
                     new { code = "Inkomstklass", selection = new { filter = "item", values = new[] { "TOT" } } },
-                    new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "HE0110K1", "HE0110K2" } } },
-                    new { code = "Tid", selection = new { filter = "item", values = new[] { "2022" } } }
+                    new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "HE0110K1", "HE0110K2" } } }//,
+                    //new { code = "Tid", selection = new { filter = "item", values = new[] { "2022" } } }
                 },
                 response = new { format = "json" }
             };
 
             var result = await PostScb(url, requestBody);
-            await _scbRepository.StoreResponse(result);
+            //await _scbRepository.StoreResponse(result);
             return result;
 
         }
@@ -79,7 +103,7 @@ namespace CityCompareProxy.Services
             };
 
             var result = await PostScb(url, requestBody);
-            await _scbRepository.StoreResponse(result);
+           // await _scbRepository.StoreResponse(result);
             return result;
         }
 
@@ -99,7 +123,7 @@ namespace CityCompareProxy.Services
                 response = new { format = "json" }
             };
             var result = await PostScb(url, requestBody);
-            await _scbRepository.StoreResponse(result);
+          //  await _scbRepository.StoreResponse(result);
             return result;
         }
 
@@ -118,7 +142,7 @@ namespace CityCompareProxy.Services
                 response = new { format = "json" }
             };
             var result = await PostScb(url, requestBody);
-            await _scbRepository.StoreResponse(result);
+          //  await _scbRepository.StoreResponse(result);
             return result;
         }
 
@@ -138,7 +162,7 @@ namespace CityCompareProxy.Services
             };
 
             var result = await PostScb(url, requestBody);
-            await _scbRepository.StoreResponse(result);
+          //  await _scbRepository.StoreResponse(result);
             return result;
         }
 

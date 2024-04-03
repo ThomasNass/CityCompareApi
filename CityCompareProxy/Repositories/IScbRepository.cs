@@ -4,6 +4,7 @@ namespace CityCompareProxy.Repositories
 {
     public interface IScbRepository
     {
-        Task StoreResponse(ScbResponse scbResponse);
+        Task StoreCity(City city);
+        Task<City> GetCityAsync(string id);
     }
 }

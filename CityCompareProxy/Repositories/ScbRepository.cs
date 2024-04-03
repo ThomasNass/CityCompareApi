@@ -1,5 +1,6 @@
 ﻿using CityCompareProxy.Models;
 using CityCompareProxy.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace CityCompareProxy.Repositories
 {
@@ -12,15 +13,14 @@ namespace CityCompareProxy.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task StoreResponse(ScbResponse scbResponse)
+        public async Task StoreCity(City city)
         {
-            await _appDbContext.AddAsync(scbResponse);
+            await _appDbContext.Cities.AddAsync(city);
             await _appDbContext.SaveChangesAsync();
         }
-        public async Task GetResponse(ScbResponse scbResponse)
+        public async Task<City> GetCityAsync(string id)
         {
-            await _appDbContext.AddAsync(scbResponse);
-            await _appDbContext.SaveChangesAsync();
+           return await _appDbContext.Cities.Include(city=> city.HousePrices).ThenInclude(i=>i.Items).FirstOrDefaultAsync(city=>city.Id == id);
         }
     }
 }

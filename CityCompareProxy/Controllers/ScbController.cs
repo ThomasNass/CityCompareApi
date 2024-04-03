@@ -20,13 +20,28 @@ namespace CityCompareProxy.Controllers
         {
             _scbService = scbService;
         }
+        [HttpGet("city/{cityId}")]
+        public async Task<IActionResult> GetCity(string cityId)
+        {
+            try
+            {
+                City? data = await _scbService.GetCityAsync(cityId);
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
         [HttpGet("houseprices/{cityId}")]
         public async Task<IActionResult> GetHousePrice(string cityId)
         {
             try
             {
-                ScbResponse? data = await _scbService.GetHousePrice(cityId);
+                City? data = await _scbService.GetHousePrice(cityId);
 
                 return Ok(data);
             }
