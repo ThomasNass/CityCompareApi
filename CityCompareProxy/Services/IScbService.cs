@@ -4,12 +4,13 @@ namespace CityCompareProxy.Services
 {
     public interface IScbService
     {
-        Task<ScbResponse?> GetElectionData(string cityId);
-        Task<ScbResponse?> GetGrowthData(string cityId);
-        Task<City?> GetHousePrice(string cityId);
-        Task<ScbResponse?> GetIncomeData(string cityId);
-        Task<ScbResponse?> GetMunicipalityElectionData(string cityId);
-        Task<ScbResponse?> GetPopulationData(string cityId);
-        Task<City> GetCityAsync(string cityId);
+        Task<City?> GetElectionData(string lauCode);
+        Task<City?> GetGrowthData(string lauCode);
+        Task<City?> GetHousePrice(string lauCode);
+        Task<City?> GetIncomeData(string lauCode);
+        Task<City?> GetMunicipalityElectionData(string lauCode);
+        Task<City?> GetPopulationGenderData(string lauCode);
+        Task<City> GetCityAsync(string lauCode);
+        Task PopulateCityWithData(string lauCode);
     }
 }

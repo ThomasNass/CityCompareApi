@@ -1,39 +1,39 @@
 ﻿using CityCompareProxy.Models;
+using System.Reflection;
 
 namespace CityCompareProxy.Helper
 {
     public class Mapper
     {
-        public static HousePrices MapScbResponseToHousePrices(ScbResponse scbResponse)
+        public static T MapScbResponseToEntity<T>(ScbResponse scbResponse, Func<ScbResponse, T> entityMapper)
         {
-            HousePrices housePrices = new HousePrices
-            {
-                Id = Guid.NewGuid(), // Generate a new Guid for HousePrices
-                LastUpdateDate = DateTime.Now, // Set the LastUpdateDate to current date/time
-                Items = new List<Data>()
-            };
+            T entity = entityMapper(scbResponse);
+            PropertyInfo parentIdProperty = typeof(T).GetProperty("Id");
 
-            // Generate a new Guid to be used as the parent id
-            Guid parentId = housePrices.Id;
-
-            // Map DataItems to Data objects and set the ParentId
-            if (scbResponse.Data != null)
+            if (entity != null && parentIdProperty != null)
             {
-                foreach (var dataItem in scbResponse.Data)
+                Guid parentId = (Guid)parentIdProperty.GetValue(entity);
+
+                foreach (var dataItem in scbResponse.Data ?? Enumerable.Empty<DataItem>())
                 {
-                    housePrices.Items.Add(MapDataItemToData(dataItem, parentId));
+                    PropertyInfo itemsProperty = typeof(T).GetProperty("Items");
+                    if (itemsProperty != null)
+                    {
+                        var itemsList = (List<Data>)itemsProperty.GetValue(entity);
+                        itemsList.Add(MapDataItemToData(dataItem, parentId));
+                    }
                 }
             }
 
-            return housePrices;
+            return entity;
         }
 
-        private static Data MapDataItemToData(DataItem dataItem, Guid id)
+        private static Data MapDataItemToData(DataItem dataItem, Guid parentId)
         {
             return new Data
             {
-                ParentId =id,
-                Id = Guid.NewGuid(), // Generate a new Guid for Data
+                ParentId = parentId,
+                Id = Guid.NewGuid(),
                 Key = dataItem.Key,
                 Values = dataItem.Values
             };

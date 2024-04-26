@@ -4,7 +4,9 @@ namespace CityCompareProxy.Repositories
 {
     public interface IScbRepository
     {
-        Task StoreCity(City city);
-        Task<City> GetCityAsync(string id);
+        void StoreCity(City city);
+        City GetCity(string id);
+        void UpdateCity(City city);
+        public void Add<T>(T entity) where T : DataEntity;
     }
 }

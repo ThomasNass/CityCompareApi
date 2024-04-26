@@ -58,7 +58,7 @@ namespace CityCompareProxy.Controllers
         {
             try
             {
-                ScbResponse? data = await _scbService.GetIncomeData(cityId);
+                City? data = await _scbService.GetIncomeData(cityId);
 
                 return Ok(data);
             }
@@ -75,7 +75,7 @@ namespace CityCompareProxy.Controllers
         {
             try
             {
-                ScbResponse? growthResponse = await _scbService.GetGrowthData(cityId);
+                City? growthResponse = await _scbService.GetGrowthData(cityId);
 
                 return Ok(growthResponse);
             }
@@ -92,7 +92,7 @@ namespace CityCompareProxy.Controllers
         {
             try
             {
-                ScbResponse? electionResponse = await _scbService.GetPopulationData(cityId);
+                City? electionResponse = await _scbService.GetPopulationGenderData(cityId);
 
                 return Ok(electionResponse);
             }
@@ -105,7 +105,7 @@ namespace CityCompareProxy.Controllers
         {
             try
             {
-                ScbResponse? electionResponse = await _scbService.GetElectionData(cityId);
+                City? electionResponse = await _scbService.GetElectionData(cityId);
 
                 return Ok(electionResponse);
             }
@@ -119,11 +119,25 @@ namespace CityCompareProxy.Controllers
         {
             try
             {
-                ScbResponse? electionResponse = await _scbService.GetMunicipalityElectionData(cityId);
+                City? electionResponse = await _scbService.GetMunicipalityElectionData(cityId);
 
                 return Ok(electionResponse);
             }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
+        }
+
+        [HttpGet("popluate-with-data/{lauCode}")]
+        public async Task<IActionResult> PopulateWithData(string lauCode)
+        {
+            try
+            {
+                await _scbService.PopulateCityWithData(lauCode);
+                return NoContent();
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
     }

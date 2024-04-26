@@ -13,14 +13,43 @@ namespace CityCompareProxy.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task StoreCity(City city)
+        public void StoreCity(City city)
         {
-            await _appDbContext.Cities.AddAsync(city);
-            await _appDbContext.SaveChangesAsync();
+            _appDbContext.Cities.Add(city);
+            _appDbContext.SaveChanges();
         }
-        public async Task<City> GetCityAsync(string id)
+        public void UpdateCity(City city)
         {
-           return await _appDbContext.Cities.Include(city=> city.HousePrices).ThenInclude(i=>i.Items).FirstOrDefaultAsync(city=>city.Id == id);
+            City cityToUpdate = _appDbContext.Cities.FirstOrDefault(c => c.LauCode == city.LauCode);
+            if (cityToUpdate != null)
+            {
+               // cityToUpdate = city;
+                _appDbContext.SaveChanges();
+            }
+        }
+
+        public void Add<T>(T entity) where T : DataEntity
+        {
+            _appDbContext.Set<T>().Add(entity);
+            _appDbContext.SaveChanges();
+        }
+
+        public City GetCity(string id)
+        {
+           return  _appDbContext.Cities
+                .Include(city=> city.HousePrices)
+                .ThenInclude(i=>i.Items)
+                .Include(city => city.PopulationGrowth)
+                .ThenInclude(i => i.Items)
+                .Include(city => city.Income)
+                .ThenInclude(i => i.Items)
+                .Include(city => city.PopulationGenderData)
+                .ThenInclude(i => i.Items)
+                .Include(city => city.ElectionData)
+                .ThenInclude(i => i.Items)
+                .Include(city => city.MunicipalityElectionData)
+                .ThenInclude(i => i.Items)
+                .FirstOrDefault(city => city.LauCode == id);
         }
     }
 }
