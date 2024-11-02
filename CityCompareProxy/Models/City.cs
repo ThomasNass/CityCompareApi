@@ -22,6 +22,8 @@ namespace CityCompareProxy.Models
         public Guid ParentId { get; set; }
         public List<string>? Key { get; set; }
         public List<string>? Values { get; set; }
+        public string Year => Key[1];
+        public double Value => Values.Count > 0 && double.TryParse(Values[0], out var result) ? result : 0;
     }
 
     public interface IDataEntity

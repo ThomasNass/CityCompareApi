@@ -12,7 +12,7 @@ namespace CityCompareProxy.Services
     public class ScbService : IScbService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://api.scb.se"; // API endpoint
+        private readonly string _baseUrl = "https://api.scb.se";
         private readonly IScbRepository _scbRepository;
 
         public ScbService(IHttpClientFactory httpClientFactory, IScbRepository scbRepository)
@@ -55,8 +55,8 @@ namespace CityCompareProxy.Services
             {
                 return new HousePrices
                 {
-                    Id = Guid.NewGuid(), // Generate a new Guid for HousePrices
-                    LastUpdateDate = DateTime.Now, // Set the LastUpdateDate to current date/time
+                    Id = Guid.NewGuid(),
+                    LastUpdateDate = DateTime.Now,
                     Items = new List<Data>()
                 };
             });
@@ -100,8 +100,8 @@ namespace CityCompareProxy.Services
             {
                 return new Income
                 {
-                    Id = Guid.NewGuid(), // Generate a new Guid for HousePrices
-                    LastUpdateDate = DateTime.Now, // Set the LastUpdateDate to current date/time
+                    Id = Guid.NewGuid(),
+                    LastUpdateDate = DateTime.Now,
                     Items = new List<Data>()
                 };
             });
@@ -138,8 +138,8 @@ namespace CityCompareProxy.Services
             {
                 return new PopulationGrowth
                 {
-                    Id = Guid.NewGuid(), // Generate a new Guid for PopulationGrowth
-                    LastUpdateDate = DateTime.Now, // Set the RecordedDate to current date/time
+                    Id = Guid.NewGuid(),
+                    LastUpdateDate = DateTime.Now,
                     Items = new List<Data>()
                 };
             });
@@ -181,8 +181,8 @@ namespace CityCompareProxy.Services
             {
                 return new PopulationGenderData
                 {
-                    Id = Guid.NewGuid(), // Generate a new Guid for PopulationGrowth
-                    LastUpdateDate = DateTime.Now, // Set the RecordedDate to current date/time
+                    Id = Guid.NewGuid(),
+                    LastUpdateDate = DateTime.Now,
                     Items = new List<Data>()
                 };
             });
@@ -223,8 +223,8 @@ namespace CityCompareProxy.Services
             {
                 return new ElectionData
                 {
-                    Id = Guid.NewGuid(), // Generate a new Guid for PopulationGrowth
-                    LastUpdateDate = DateTime.Now, // Set the RecordedDate to current date/time
+                    Id = Guid.NewGuid(),
+                    LastUpdateDate = DateTime.Now,
                     Items = new List<Data>()
                 };
             });
@@ -265,8 +265,8 @@ namespace CityCompareProxy.Services
             {
                 return new MunicipalityElectionData
                 {
-                    Id = Guid.NewGuid(), // Generate a new Guid for PopulationGrowth
-                    LastUpdateDate = DateTime.Now, // Set the RecordedDate to current date/time
+                    Id = Guid.NewGuid(),
+                    LastUpdateDate = DateTime.Now,
                     Items = new List<Data>()
                 };
             });

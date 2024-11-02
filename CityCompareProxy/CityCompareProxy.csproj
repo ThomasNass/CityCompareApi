@@ -11,7 +11,15 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Radzen.Blazor" Version="5.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\app.css" />
+    <None Include="wwwroot\bootstrap\bootstrap.min.css" />
+    <None Include="wwwroot\bootstrap\bootstrap.min.css.map" />
+    <None Include="wwwroot\favicon.png" />
   </ItemGroup>
 
 </Project>

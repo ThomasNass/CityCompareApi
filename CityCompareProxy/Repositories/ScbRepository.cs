@@ -13,17 +13,11 @@ namespace CityCompareProxy.Repositories
             _appDbContext = appDbContext;
         }
 
-        public void StoreCity(City city)
-        {
-            _appDbContext.Cities.Add(city);
-            _appDbContext.SaveChanges();
-        }
         public void UpdateCity(City city)
         {
             City cityToUpdate = _appDbContext.Cities.FirstOrDefault(c => c.LauCode == city.LauCode);
             if (cityToUpdate != null)
             {
-               // cityToUpdate = city;
                 _appDbContext.SaveChanges();
             }
         }
