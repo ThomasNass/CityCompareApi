@@ -1,0 +1,30 @@
+﻿@using CityCompareProxy.Models
+<div class="row">
+    <div class="col-md-5 col-sm-12">
+        <AutoComplete @bind-Value="City.Name"
+                      TItem="Home.CityFromJson"
+                      DataProvider="CitiesDataProvider"
+                      PropertyName="@nameof(Home.CityFromJson.Name)"
+                      Placeholder="Search for a city..."
+                      OnChanged="(Home.CityFromJson city) => OnAutoCompleteChanged(city)" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<Home.CityFromJson> Cities { get; set; } 
+    [Parameter] public City City { get; set; }
+
+    private async Task<AutoCompleteDataProviderResult<Home.CityFromJson>> CitiesDataProvider(AutoCompleteDataProviderRequest<Home.CityFromJson> request)
+    {
+        return await Task.FromResult(request.ApplyTo(Cities.OrderBy(city => city.Name)));
+    }
+    
+
+    private void OnAutoCompleteChanged(Home.CityFromJson city)
+    {
+        // TODO: handle your own logic
+        City.LauCode = city.Laucode;
+        // NOTE: do null check
+        Console.WriteLine($"'{city?.Name}' selected.");
+    }
+}

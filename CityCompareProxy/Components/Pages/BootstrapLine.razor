@@ -1,0 +1,84 @@
+﻿@using CityCompareProxy.Models
+@using ButtonSize = BlazorBootstrap.ButtonSize
+@using ButtonType = BlazorBootstrap.ButtonType
+@using LineChart = BlazorBootstrap.LineChart
+<div class="container-fluid overflow-x-auto">
+    <LineChart @ref="lineChart" Width="800" />
+</div>
+
+@code {
+    [CascadingParameter] CityContext CityContext { get; set; }
+    private PopulationGrowth City1 => CityContext.City1.PopulationGrowth;
+    private PopulationGrowth City2 => CityContext.City2.PopulationGrowth;
+
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+    private List<string> labels = default!;
+
+    protected override void OnInitialized()
+    {
+        labels = City1.Items.Select(y => y.Year).ToList();
+        lineChartOptions = GetLineChartOptions();
+        chartData = new ChartData { Labels = labels, Datasets = GetDefaultDatasets() };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+    }
+    
+    private List<IChartDataset> GetDefaultDatasets()
+    {
+        var datasets = new List<IChartDataset>
+                       {
+                           new LineChartDataset
+                           {
+                               Label = CityContext.City1.Name,
+                               Data = CityContext.City1.PopulationGrowth.Items.Select<Data, double?>(value => value.Value).ToList(),
+                               BackgroundColor = "rgb(88, 80, 141)",
+                               BorderColor = "rgb(88, 80, 141)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },
+                           new LineChartDataset
+                           {
+                               Label = CityContext.City2.Name,
+                               Data = CityContext.City2.PopulationGrowth.Items.Select<Data, double?>(value => value.Value).ToList(),
+                               BackgroundColor = "rgb(255, 166, 0)",
+                               BorderColor = "rgb(255, 166, 0)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(255, 166, 0)",
+                               // PointBorderColor = "rgb(255, 166, 0)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           }
+                       };
+
+        return datasets;
+    }
+
+    private LineChartOptions GetLineChartOptions()
+    {
+        var options = new LineChartOptions();
+
+        options.Interaction.Mode = InteractionMode.Index;
+
+        options.Plugins.Title = new ChartPluginsTitle { Text = "Populationstillväxt", Display = true, Font = new ChartFont { Size = City1.Items.Count } };
+
+        options.Responsive = true;
+
+        options.Scales.X!.Title = new ChartAxesTitle { Text = "Årtal", Display = true };
+        options.Scales.Y!.Title = new ChartAxesTitle { Text = "Population", Display = true };
+        options.Scales.Y.SuggestedMax = 150;
+
+        return options;
+    }
+
+}

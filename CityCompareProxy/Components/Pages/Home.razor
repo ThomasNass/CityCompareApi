@@ -1,0 +1,86 @@
+﻿@page "/"
+@using System.Text.Json
+@using CityCompareProxy.Components
+@using CityCompareProxy.Models
+@using CityCompareProxy.Services
+
+<PageTitle>Home</PageTitle>
+
+<h1>City Compare</h1>
+
+@if (isDataFromFileLoaded)
+{
+<CitySelect Cities="CityList" City="CityContext.City1"></CitySelect>
+<CitySelect Cities="CityList" City="CityContext.City2"></CitySelect>
+<BootSearch Cities="CityList"City="CityContext.City1"></BootSearch>
+<BootSearch Cities="CityList"City="CityContext.City2"></BootSearch>
+<button onclick="@GetCities">Sök</button>
+}
+else
+{
+<p>Loading...</p>
+}
+@if (!isFirstQuery)
+{
+    <BootstrapLine></BootstrapLine>
+}
+@code {
+    [Inject] private IScbService _scbService { get; set; } 
+    public List<CityFromJson> CityList;
+    private bool isDataFromFileLoaded = false;
+    private bool isFirstQuery = true;
+    [CascadingParameter] CityContext CityContext { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCitiesAsync();
+    }
+
+    private async Task LoadCitiesAsync()
+    {
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cities.json");
+
+        if (File.Exists(path))
+        {
+            using (var reader = new StreamReader(path))
+            {
+                var json = await reader.ReadToEndAsync();
+                var cityData = JsonSerializer.Deserialize<DataStructure>(json);
+
+                if (cityData?.cities != null && cityData?.id != null)
+                {
+                    CityList = cityData.cities.Zip(cityData.id, (name, laucode) => new CityFromJson { Name = name, Laucode = laucode }).ToList();
+                }
+                else
+                {
+                    CityList = new List<CityFromJson>();
+                }
+                isDataFromFileLoaded = true;
+            }
+        }
+    }
+
+    private async Task GetCities()
+    {
+        if (!string.IsNullOrEmpty(CityContext.City1.LauCode) && !string.IsNullOrEmpty(CityContext.City2.LauCode))
+        {
+            await _scbService.PopulateCityWithData(CityContext.City1.LauCode);
+            await _scbService.PopulateCityWithData(CityContext.City2.LauCode);
+
+            CityContext.City1 = await _scbService.GetCityAsync(CityContext.City1.LauCode);
+            CityContext.City2 = await _scbService.GetCityAsync(CityContext.City2.LauCode);
+            isFirstQuery = false;
+        }
+    }
+    
+    private class DataStructure
+    {
+        public List<string> cities { get; set; }
+        public List<string> id { get; set; }
+    }
+
+    public class CityFromJson
+    {
+        public string Name { get; set; }
+        public string Laucode { get; set; }
+    }
+}

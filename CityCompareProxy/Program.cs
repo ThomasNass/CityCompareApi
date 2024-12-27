@@ -4,9 +4,6 @@ using CityCompareProxy.Repositories;
 using CityCompareProxy.Services;
 using Microsoft.EntityFrameworkCore;
 
-
-using Radzen;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,10 +16,10 @@ builder.Services.AddScoped<IScbService,ScbService>();
 builder.Services.AddScoped<IScbRepository,ScbRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddBlazorBootstrap();
 builder.Services.AddSwaggerGen();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddRadzenComponents();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
