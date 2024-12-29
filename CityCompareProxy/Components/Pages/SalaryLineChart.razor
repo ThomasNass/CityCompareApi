@@ -18,7 +18,7 @@
 
     protected override void OnInitialized()
     {
-        _labels = CityContext.City1.Income.Items.Select(y => y.Year).Distinct().ToList();
+        _labels = CityContext.City1.Income.Items.Select(y => y.Year).Distinct().Order().ToList();
         _lineChartOptions = GetLineChartOptions();
         _chartData = new ChartData { Labels = _labels, Datasets = GetDefaultDatasets() };
     }

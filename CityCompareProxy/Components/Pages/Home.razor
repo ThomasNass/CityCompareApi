@@ -5,7 +5,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>City Compare</h1>
+<h1>Kommunkollen</h1>
 
 @if (isDataFromFileLoaded)
 {
@@ -40,6 +40,17 @@ else
         Items1="CityContext.City1.HousePrices.Items"
         Items2="CityContext.City2.HousePrices.Items">
     </SimpleLineChart>
+    <div>
+        <h2>Könsfördelning</h2>
+        <BootPie
+            Title="@CityContext.City1.Name"
+            Items="CityContext.City1.PopulationGenderData.Items">
+        </BootPie>
+        <BootPie
+            Title="@CityContext.City2.Name"
+            Items="CityContext.City2.PopulationGenderData.Items">
+        </BootPie>
+    </div>
 }
 @code {
     [Inject] private IScbService _scbService { get; set; } 
