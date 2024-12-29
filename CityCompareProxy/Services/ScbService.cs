@@ -78,6 +78,7 @@ namespace CityCompareProxy.Services
                 query = new[]
                 {
                     new { code = "Region", selection = new { filter = "vs:RegionKommun07EjAggr", values = new[] { lauCode } } },
+                    new {code = "Kon", selection = new {filter = "item", values = new[] {"1","2"}}},
                     new { code = "Alder", selection = new { filter = "item", values = new[] { "20-64" } } },
                     new { code = "Inkomstklass", selection = new { filter = "item", values = new[] { "TOT" } } },
                     new { code = "ContentsCode", selection = new { filter = "item", values = new[] { "HE0110K1", "HE0110K2" } } }

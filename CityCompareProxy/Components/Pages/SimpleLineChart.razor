@@ -1,32 +1,35 @@
 ﻿@using CityCompareProxy.Models
-@using ButtonSize = BlazorBootstrap.ButtonSize
-@using ButtonType = BlazorBootstrap.ButtonType
 @using LineChart = BlazorBootstrap.LineChart
 <div class="container-fluid overflow-x-auto">
-    <LineChart @ref="lineChart" Width="800" />
+    <LineChart @ref="_lineChart" Width="800" />
 </div>
 
 @code {
     [CascadingParameter] CityContext CityContext { get; set; }
-    private PopulationGrowth City1 => CityContext.City1.PopulationGrowth;
-    private PopulationGrowth City2 => CityContext.City2.PopulationGrowth;
+    [Parameter] public required List<Data> Items1 { get; set; }
+    [Parameter] public required List<Data> Items2 { get; set; }
+    [Parameter] public required string Title { get; set; }
+    [Parameter] public required string XAxisText { get; set; }
+    [Parameter] public required string YAxisText { get; set; }
+    private List<double?>? DataSet1 => Items1.Select<Data, double?>(value => value.Value).ToList();
+    private List<double?>? DataSet2 => Items2.Select<Data, double?>(value => value.Value).ToList();
 
-    private LineChart lineChart = default!;
-    private LineChartOptions lineChartOptions = default!;
-    private ChartData chartData = default!;
-    private List<string> labels = default!;
+    private LineChart _lineChart = default!;
+    private LineChartOptions _lineChartOptions = default!;
+    private ChartData _chartData = default!;
+    private List<string> _labels = default!;
 
     protected override void OnInitialized()
     {
-        labels = City1.Items.Select(y => y.Year).ToList();
-        lineChartOptions = GetLineChartOptions();
-        chartData = new ChartData { Labels = labels, Datasets = GetDefaultDatasets() };
+        _labels = Items1.Select(y => y.Year).ToList();
+        _lineChartOptions = GetLineChartOptions();
+        _chartData = new ChartData { Labels = _labels, Datasets = GetDefaultDatasets() };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            await lineChart.InitializeAsync(chartData, lineChartOptions);
+            await _lineChart.InitializeAsync(_chartData, _lineChartOptions);
     }
     
     private List<IChartDataset> GetDefaultDatasets()
@@ -36,7 +39,7 @@
                            new LineChartDataset
                            {
                                Label = CityContext.City1.Name,
-                               Data = CityContext.City1.PopulationGrowth.Items.Select<Data, double?>(value => value.Value).ToList(),
+                               Data = DataSet1,
                                BackgroundColor = "rgb(88, 80, 141)",
                                BorderColor = "rgb(88, 80, 141)",
                                BorderWidth = 2,
@@ -49,7 +52,7 @@
                            new LineChartDataset
                            {
                                Label = CityContext.City2.Name,
-                               Data = CityContext.City2.PopulationGrowth.Items.Select<Data, double?>(value => value.Value).ToList(),
+                               Data = DataSet2,
                                BackgroundColor = "rgb(255, 166, 0)",
                                BorderColor = "rgb(255, 166, 0)",
                                BorderWidth = 2,
@@ -70,12 +73,12 @@
 
         options.Interaction.Mode = InteractionMode.Index;
 
-        options.Plugins.Title = new ChartPluginsTitle { Text = "Populationstillväxt", Display = true, Font = new ChartFont { Size = City1.Items.Count } };
+        options.Plugins.Title = new ChartPluginsTitle { Text = Title, Display = true, Font = new ChartFont { Size = Items1.Count } };
 
         options.Responsive = true;
 
-        options.Scales.X!.Title = new ChartAxesTitle { Text = "Årtal", Display = true };
-        options.Scales.Y!.Title = new ChartAxesTitle { Text = "Population", Display = true };
+        options.Scales.X!.Title = new ChartAxesTitle { Text = XAxisText, Display = true };
+        options.Scales.Y!.Title = new ChartAxesTitle { Text = YAxisText, Display = true };
         options.Scales.Y.SuggestedMax = 150;
 
         return options;

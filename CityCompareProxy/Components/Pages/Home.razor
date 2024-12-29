@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using System.Text.Json
-@using CityCompareProxy.Components
 @using CityCompareProxy.Models
 @using CityCompareProxy.Services
 
@@ -20,12 +19,32 @@ else
 }
 @if (!isFirstQuery)
 {
-    <BootstrapLine></BootstrapLine>
+    <SimpleLineChart
+        Title="Populationstillväxt"
+        XAxisText="Årtal"
+        YAxisText="Population"
+        Items1 = "CityContext.City1.PopulationGrowth.Items"
+        Items2 = "CityContext.City2.PopulationGrowth.Items">
+    </SimpleLineChart>
+    
+    <SalaryLineChart
+        Title="Förvärvsinkomst mellan kön över tid"
+        XAxisText="Årtal"
+        YAxisText="Inkomst i tkr">
+    </SalaryLineChart>
+    
+    <SimpleLineChart
+        Title="Husprisförändringar"
+        XAxisText="Årtal"
+        YAxisText="Huspriser i tkr"
+        Items1="CityContext.City1.HousePrices.Items"
+        Items2="CityContext.City2.HousePrices.Items">
+    </SimpleLineChart>
 }
 @code {
     [Inject] private IScbService _scbService { get; set; } 
     public List<CityFromJson> CityList;
-    private bool isDataFromFileLoaded = false;
+    private bool isDataFromFileLoaded;
     private bool isFirstQuery = true;
     [CascadingParameter] CityContext CityContext { get; set; }
     protected override async Task OnInitializedAsync()

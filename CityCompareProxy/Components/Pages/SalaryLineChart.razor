@@ -1,0 +1,222 @@
+﻿@using System.Globalization
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using LineChart = BlazorBootstrap.LineChart
+<div class="container-fluid overflow-x-auto">
+    <LineChart @ref="_lineChart" Width="800" />
+</div>
+
+@code {
+    [CascadingParameter] CityContext CityContext { get; set; }
+    [Parameter] public required string Title { get; set; }
+    [Parameter] public required string XAxisText { get; set; }
+    [Parameter] public required string YAxisText { get; set; }
+
+    private LineChart _lineChart = default!;
+    private LineChartOptions _lineChartOptions = default!;
+    private ChartData _chartData = default!;
+    private List<string> _labels = default!;
+
+    protected override void OnInitialized()
+    {
+        _labels = CityContext.City1.Income.Items.Select(y => y.Year).Distinct().ToList();
+        _lineChartOptions = GetLineChartOptions();
+        _chartData = new ChartData { Labels = _labels, Datasets = GetDefaultDatasets() };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await _lineChart.InitializeAsync(_chartData, _lineChartOptions);
+    }
+    
+    private List<IChartDataset> GetDefaultDatasets()
+    {
+        var datasets = new List<IChartDataset>
+                       {
+                           new LineChartDataset
+                           {
+                               Label = $"{CityContext.City1.Name} Medelinkomst Män",
+                                Data = CityContext.City1.Income.Items.Where(k => k.Key[1] == "1")
+                                    .Select(item =>
+                                    {
+                                        var value = item.Values?.FirstOrDefault()?.Trim();
+                                        return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                            ? (double?)result 
+                                            : null;
+                                    })
+                                    .ToList(),
+                               BackgroundColor = "rgb(88, 80, 141)",
+                               BorderColor = "rgb(88, 80, 141)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },
+                           new LineChartDataset
+                           {
+                               Label = $"{CityContext.City1.Name} Medelinkomst Kvinnor",
+                               Data = CityContext.City1.Income.Items.Where(k => k.Key[1] == "2")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.FirstOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(88, 80, 141)",
+                               BorderColor = "rgb(88, 80, 141)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },new LineChartDataset
+                           {
+                               Label = $"{CityContext.City1.Name} Median Män",
+                               Data = CityContext.City1.Income.Items.Where(k => k.Key[1] == "1")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.LastOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(88, 80, 141)",
+                               BorderColor = "rgb(88, 80, 141)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },
+                           new LineChartDataset
+                           {
+                               Label = $"{CityContext.City1.Name} Median Kvinnor",
+                               Data = CityContext.City1.Income.Items.Where(k => k.Key[1] == "2")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.LastOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(88, 80, 141)",
+                               BorderColor = "rgb(88, 80, 141)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },
+                           new LineChartDataset
+                           {
+                               Label = $"{CityContext.City2.Name} Medelinkomst Män",
+                               Data = CityContext.City2.Income.Items.Where(k => k.Key[1] == "1")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.FirstOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(255, 166, 0)",
+                               BorderColor = "rgb(255, 166, 0)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },new LineChartDataset
+                           {
+                               Label = $"{CityContext.City2.Name} Medelinkomst Kvinnor",
+                               Data = CityContext.City2.Income.Items.Where(k => k.Key[1] == "2")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.FirstOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(255, 166, 0)",
+                               BorderColor = "rgb(255, 166, 0)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },new LineChartDataset
+                           {
+                               Label = $"{CityContext.City2.Name} Median Män",
+                               Data = CityContext.City2.Income.Items.Where(k => k.Key[1] == "1")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.LastOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(255, 166, 0)",
+                               BorderColor = "rgb(255, 166, 0)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           },new LineChartDataset
+                           {
+                               Label = $"{CityContext.City2.Name} Median Kvinnor",
+                               Data = CityContext.City2.Income.Items.Where(k => k.Key[1] == "2")
+                                   .Select(item =>
+                                   {
+                                       var value = item.Values?.LastOrDefault()?.Trim();
+                                       return !string.IsNullOrEmpty(value) && double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) 
+                                           ? (double?)result 
+                                           : null;
+                                   })
+                                   .ToList(),
+                               BackgroundColor = "rgb(255, 166, 0)",
+                               BorderColor = "rgb(255, 166, 0)",
+                               BorderWidth = 2,
+                               HoverBorderWidth = 4,
+                               // PointBackgroundColor = "rgb(88, 80, 141)",
+                               // PointBorderColor = "rgb(88, 80, 141)",
+                               // PointRadius = 0, // hide points
+                               // PointHoverRadius = 4,
+                           }
+                       };
+
+        return datasets;
+    }
+
+    private LineChartOptions GetLineChartOptions()
+    {
+        var options = new LineChartOptions();
+
+        options.Interaction.Mode = InteractionMode.Index;
+
+        options.Plugins.Title = new ChartPluginsTitle { Text = Title, Display = true, Font = new ChartFont { Size = CityContext.City1.Income.Items.Count/2 } };
+
+        options.Responsive = true;
+
+        options.Scales.X!.Title = new ChartAxesTitle { Text = XAxisText, Display = true };
+        options.Scales.Y!.Title = new ChartAxesTitle { Text = YAxisText, Display = true };
+        options.Scales.Y.SuggestedMax = 150;
+
+        return options;
+    }
+
+}
